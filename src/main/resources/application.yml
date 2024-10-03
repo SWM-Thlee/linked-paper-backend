@@ -1,0 +1,18 @@
+server:
+  port: 8080
+
+spring:
+  profiles:
+    active: dev
+  datasource:
+    url: jdbc:mysql://localhost:3306/linkedpaper
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+
+  webclient:
+    connect-timeout: 5000  # 외부 API 연결 timeout (ms)
+    read-timeout: 10000    # 외부 API 읽기 timeout (ms)
+

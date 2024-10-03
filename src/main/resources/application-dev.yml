@@ -1,0 +1,24 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/linkedpaper_dev
+    username: dev_user
+    password: dev_password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+
+  webclient:
+    connect-timeout: 5000  # 외부 API 연결 timeout (ms)
+    read-timeout: 10000    # 외부 API 읽기 timeout (ms)
+
+
+# Search API config
+search-service-api:
+  base-url: http://localhost:8000
+
+logging:
+  level:
+    org.springframework.web: DEBUG  # WebClient 요청 로깅

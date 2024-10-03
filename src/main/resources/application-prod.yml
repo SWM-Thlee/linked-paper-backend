@@ -1,0 +1,30 @@
+server:
+  port: 8080
+
+spring:
+  main:
+    debug: false
+  datasource:
+    url: jdbc:mysql://prod-database:3306/linkedpaper_prod
+    username: prod_user
+    password: prod_password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 20
+
+  webclient:
+    connect-timeout: 120000  # 운영 환경에 맞는 timeout 설정
+    read-timeout: 120000
+# Search API config
+search-service-api:
+  base-url: ${SEARCH_SERVICE_URL:http://localhost:8000}
+
+
+logging:
+  level:
+    root: INFO
+    org.springframework: INFO           # Spring 전체에 대한 로깅 레벨 설정
+    org.springframework.web: INFO       # Spring Web 관련 패키지 로그를 INFO로 설정
+    org.springframework.boot: INFO      # Spring Boot 관련 패키지 로그를 INFO로 설정
+    org.springframework.web.servlet: INFO  # DispatcherServlet 로그를 INFO로 설정
+    io.netty: INFO
