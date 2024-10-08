@@ -65,9 +65,7 @@ public class PaperApiClient {
                         .queryParam("query", query)
                         .queryParamIfPresent(
                             "filter_categories",
-                            Optional.ofNullable(filterCategories)
-                                .filter(f -> !f.isEmpty())
-                                .map(f -> String.join(",", f)))
+                            Optional.ofNullable(filterCategories).filter(f -> !f.isEmpty()))
                         .queryParamIfPresent(
                             "filter_start_date", Optional.ofNullable(filterStartDate))
                         .queryParamIfPresent("filter_end_date", Optional.ofNullable(filterEndDate))
@@ -122,7 +120,7 @@ public class PaperApiClient {
   private Paper mapToPaper(ApiResponse apiResponse) {
     ApiResponse.Meta meta = apiResponse.getMeta();
 
-    String arxiv_regex = "oai:arXiv.org:(.+)"; // 'oai:arXiv.org:' 뒤에 오는 값을 추출하는 정규식
+    String arxiv_regex = "oai:arXiv.org:(.+)"; // 'oai:ArXiv.org:' 뒤에 오는 값을 추출하는 정규식
     String arxiv_oai_id = meta.getIdentifier();
 
     // 패턴 컴파일 및 매칭
@@ -136,12 +134,42 @@ public class PaperApiClient {
       throw new IllegalArgumentException("Invalid arXiv OAI identifier format: " + arxiv_oai_id);
     }
 
+    // 행넘김 문자 및 다중 공백 처리: title과 abstraction 같은 필드에서
+    String sanitizedTitle =
+        meta.getTitle()
+            .replace("\n", " ") // 행넘김 문자 제거
+            .replaceAll("\\s+", " ") // 다중 공백을 하나로 치환
+            .replace("\\'", "'") // LaTeX 스타일의 이스케이프 문자 처리
+            .replace("\\\"", "\""); // LaTeX 스타일의 이중 따옴표 처리
+
+    // LaTeX 스타일의 기호 처리: abstraction 필드에서
+    String sanitizedAbstraction =
+        meta.getAbstractText()
+            .replace("\n", " ") // 행넘김 문자 제거
+            .replaceAll("\\s+", " ") // 다중 공백을 하나로 치환
+            .replace("\\'", "'") // LaTeX 스타일의 이스케이프 문자 처리
+            .replace("\\\"", "\"") // 이중 따옴표 처리
+            .replace("$\\pm", "±") // ± 기호 처리
+            .replace("^\\circ", "°") // ° (도) 기호 처리
+            .replaceAll("\\$(\\d+\\.?\\d*)\\^\\\\circ\\s*C", "$1°C") // 예: $0.5^\\circ C -> 0.5°C
+            .replace("$", ""); // 남은 $ 기호 제거
+
+    // LaTeX 스타일의 이스케이프된 문자 (\\', \\") 처리: authors 필드에서
+    // 'and'와 ',' 모두를 구분하여 저자를 분리
+    String sanitizedAuthors =
+        meta.getAuthors()
+            .replace("\n", " ") // 행넘김 문자 제거
+            .replaceAll("\\s+", " ") // 다중 공백을 하나로 치환
+            .replace("\\'", "'") // LaTeX 스타일의 이스케이프 문자 처리
+            .replace("\\\"", "\"") // LaTeX 스타일의 이중 따옴표 처리
+            .replace(" and ", ", "); // 'and'를 ','로 변경
+
     Paper paper = new Paper();
     paper.setId(apiResponse.getId());
-    paper.setTitle(meta.getTitle());
-    paper.setAbstraction(meta.getAbstractText()); // 'abstract' 필드명 변경
+    paper.setTitle(sanitizedTitle); // 정리된 title 사용
+    paper.setAbstraction(sanitizedAbstraction); // 정리된 abstract 사용
     paper.setJournal("arXiv.org"); // 하드코딩된 값 사용, 필요시 수정
-    paper.setAuthors(List.of(meta.getAuthors().split(", "))); // authors 필드를 리스트로 변환
+    paper.setAuthors(List.of(sanitizedAuthors.split(", "))); // authors 필드를 리스트로 변환
     paper.setCategories(List.of(meta.getCategories().split(" "))); // categories 필드를 리스트로 변환
     paper.setReference_count(0); // 응답에 reference_count가 없으므로 0으로 설정
     paper.setCitiation_count(0); // 응답에 citation_count가 없으므로 0으로 설정
