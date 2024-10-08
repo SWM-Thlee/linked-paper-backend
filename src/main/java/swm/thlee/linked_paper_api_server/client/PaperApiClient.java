@@ -80,6 +80,31 @@ public class PaperApiClient {
     return mapToSearchPaperResult(apiResponses);
   }
 
+  public SearchPaperResult corelatedPapers(
+      String paperID, List<String> filterCategories, String filterStartDate, String filterEndDate) {
+    ApiResponse[] apiResponses =
+        webClient
+            .get()
+            .uri(
+                uriBuilder ->
+                    uriBuilder
+                        .path("/correlations")
+                        .queryParam("doc_id", paperID)
+                        .queryParamIfPresent(
+                            "filter_categories",
+                            Optional.ofNullable(filterCategories).filter(f -> !f.isEmpty()))
+                        .queryParamIfPresent(
+                            "filter_start_date", Optional.ofNullable(filterStartDate))
+                        .queryParamIfPresent("filter_end_date", Optional.ofNullable(filterEndDate))
+                        .build())
+            .retrieve()
+            .bodyToMono(ApiResponse[].class)
+            .block(); // 비동기식 호출을 동기식으로 변환
+
+    // API 응답을 SearchPaperResult로 매핑
+    return mapToSearchPaperResult(apiResponses);
+  }
+
   // ApiResponse 배열을 SearchPaperResult로 변환하는 메소드
   private SearchPaperResult mapToSearchPaperResult(ApiResponse[] apiResponses) {
     SearchPaperResult searchResult = new SearchPaperResult();

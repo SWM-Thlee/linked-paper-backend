@@ -33,6 +33,18 @@ public class SearchService {
     return processSearchResults(externalResult, sorting, size, index, similarityLimit);
   }
 
+  public SearchPaperResult findCorrelatedPapers(
+      String paperID,
+      int limitation,
+      List<String> filterTags,
+      List<String> filterCategories,
+      List<String> filterJournal,
+      String filterStartDate,
+      String filterEndDate) {
+    return paperApiClient.corelatedPapers(
+        paperID, filterCategories, filterStartDate, filterEndDate);
+  }
+
   private SearchPaperResult processSearchResults(
       SearchPaperResult externalResult,
       String sorting,

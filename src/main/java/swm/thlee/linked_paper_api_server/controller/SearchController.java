@@ -3,19 +3,16 @@ package swm.thlee.linked_paper_api_server.controller;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import swm.thlee.linked_paper_api_server.dto.SearchPaperResult;
 import swm.thlee.linked_paper_api_server.service.SearchService;
 
 @RestController
-@RequestMapping("/search")
 public class SearchController {
 
   @Autowired private SearchService searchService;
 
+  @RequestMapping("/search")
   @GetMapping
   public ResponseEntity<SearchPaperResult> findSearchResult(
       @RequestParam("query") String query,
@@ -35,6 +32,31 @@ public class SearchController {
             size,
             index,
             similarityLimit,
+            filterCategories,
+            filterJournal,
+            filterStartDate,
+            filterEndDate);
+
+    return ResponseEntity.ok(result);
+  }
+
+  @RequestMapping("/correlations/{paperID}")
+  @GetMapping
+  public ResponseEntity<SearchPaperResult> findCorrelationResult(
+      @PathVariable("paperID") String paperID,
+      @RequestParam(value = "limitation", defaultValue = "20") int limitation,
+      @RequestParam(value = "filter_tag", required = false) List<String> filterTags,
+      @RequestParam(value = "filter_category", required = false) List<String> filterCategories,
+      @RequestParam(value = "filter_journal", required = false) List<String> filterJournal,
+      @RequestParam(value = "filter_start_date", required = false) String filterStartDate,
+      @RequestParam(value = "filter_end_date", required = false) String filterEndDate) {
+
+    // 검색 서비스에서 연관 논문 검색 로직 호출
+    SearchPaperResult result =
+        searchService.findCorrelatedPapers(
+            paperID,
+            limitation,
+            filterTags,
             filterCategories,
             filterJournal,
             filterStartDate,
