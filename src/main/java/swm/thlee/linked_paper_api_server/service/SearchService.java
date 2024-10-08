@@ -35,14 +35,14 @@ public class SearchService {
 
   public SearchPaperResult findCorrelatedPapers(
       String paperID,
-      int limitation,
+      int limit,
       List<String> filterTags,
       List<String> filterCategories,
       List<String> filterJournal,
       String filterStartDate,
       String filterEndDate) {
     return paperApiClient.corelatedPapers(
-        paperID, filterCategories, filterStartDate, filterEndDate);
+        paperID, limit, filterCategories, filterStartDate, filterEndDate);
   }
 
   private SearchPaperResult processSearchResults(

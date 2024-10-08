@@ -79,7 +79,11 @@ public class PaperApiClient {
   }
 
   public SearchPaperResult corelatedPapers(
-      String paperID, List<String> filterCategories, String filterStartDate, String filterEndDate) {
+      String paperID,
+      int limit,
+      List<String> filterCategories,
+      String filterStartDate,
+      String filterEndDate) {
     ApiResponse[] apiResponses =
         webClient
             .get()
@@ -88,6 +92,7 @@ public class PaperApiClient {
                     uriBuilder
                         .path("/correlations")
                         .queryParam("doc_id", paperID)
+                        .queryParam("limit", limit)
                         .queryParamIfPresent(
                             "filter_categories",
                             Optional.ofNullable(filterCategories).filter(f -> !f.isEmpty()))

@@ -44,7 +44,7 @@ public class SearchController {
   @GetMapping
   public ResponseEntity<SearchPaperResult> findCorrelationResult(
       @PathVariable("paperID") String paperID,
-      @RequestParam(value = "limitation", defaultValue = "20") int limitation,
+      @RequestParam(value = "limit", defaultValue = "20") int limit,
       @RequestParam(value = "filter_tag", required = false) List<String> filterTags,
       @RequestParam(value = "filter_category", required = false) List<String> filterCategories,
       @RequestParam(value = "filter_journal", required = false) List<String> filterJournal,
@@ -55,7 +55,7 @@ public class SearchController {
     SearchPaperResult result =
         searchService.findCorrelatedPapers(
             paperID,
-            limitation,
+            limit,
             filterTags,
             filterCategories,
             filterJournal,
