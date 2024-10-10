@@ -33,6 +33,9 @@ COPY --from=build /app/build/libs/linked-paper-api-server-0.0.1-SNAPSHOT.jar /ap
 ARG ACTIVE_PROFILE=prod
 ENV SPRING_PROFILES_ACTIVE=${ACTIVE_PROFILE}
 
+ARG SENTRY_DSN
+ENV SENTRY_DSN=${SENTRY_DSN}
+
 # Expose port 8080
 EXPOSE 8080
 

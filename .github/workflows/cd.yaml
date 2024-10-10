@@ -70,6 +70,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             SENTRY_AUTH_TOKEN=${{ env.SENTRY_AUTH_TOKEN }}
+            SENTRY_DSN=${{ env.SENTRY_DSN }}
 
       - name: Deploy to ECS
         id: deploy
