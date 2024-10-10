@@ -18,7 +18,7 @@ RUN chmod +x gradlew
 RUN ./gradlew spotlessApply
 
 # Build the project without running tests
-RUN ./gradlew build -x test
+RUN SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN ./gradlew build -x test
 
 # Use JDK 21 to run the app
 FROM openjdk:21-jdk-slim
