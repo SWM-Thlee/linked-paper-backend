@@ -11,6 +11,8 @@ COPY settings.gradle .
 # Copy source code
 COPY src ./src
 
+# Sentry CLI login
+RUN sentry-cli login --auth-token $SENTRY_AUTH_TOKEN
 
 # Grant permission to Gradle wrapper
 RUN chmod +x gradlew
@@ -18,7 +20,7 @@ RUN chmod +x gradlew
 RUN ./gradlew spotlessApply
 
 # Build the project without running tests
-RUN SENTRY_AUTH_TOKEN=$SENTRY_AUTH_TOKEN ./gradlew build -x test
+RUN ./gradlew build -x test
 
 # Use JDK 21 to run the app
 FROM openjdk:21-jdk-slim
