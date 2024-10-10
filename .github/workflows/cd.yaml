@@ -68,8 +68,8 @@ jobs:
             linux/amd64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-        env:
-          SENTRY_AUTH_TOKEN: ${{ env.SENTRY_AUTH_TOKEN }}
+          build-args: |
+            SENTRY_AUTH_TOKEN=${{ env.SENTRY_AUTH_TOKEN }}
 
       - name: Deploy to ECS
         id: deploy
