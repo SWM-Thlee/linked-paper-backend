@@ -11,8 +11,8 @@ COPY settings.gradle .
 # Copy source code
 COPY src ./src
 
-# Sentry CLI login
-RUN sentry-cli login --auth-token $SENTRY_AUTH_TOKEN
+ARG SENTRY_AUTH_TOKEN
+ENV SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
 
 # Grant permission to Gradle wrapper
 RUN chmod +x gradlew
