@@ -19,6 +19,8 @@ spring:
 search-service-api:
   base-url: ${SEARCH_SERVICE_URL:http://localhost:8000}
 
+sentry:
+  dsn: ${SENTRY_DSN}
 
 logging:
   level:
