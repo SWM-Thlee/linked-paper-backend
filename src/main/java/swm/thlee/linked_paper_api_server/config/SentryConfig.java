@@ -19,6 +19,8 @@ public class SentryConfig {
           options.setDsn(dsn); // DSN 값 설정
           options.setEnvironment("production");
           options.setRelease("1.0.0");
+          options.setTracesSampleRate(1.0); // Ensure this is set for transaction tracing
+          options.setEnableTracing(true); // Explicitly enable tracing
         });
   }
 }
