@@ -41,8 +41,12 @@ public class SearchService {
       List<String> filterJournal,
       String filterStartDate,
       String filterEndDate) {
-    return paperApiClient.corelatedPapers(
-        paperID, limit, filterCategories, filterStartDate, filterEndDate);
+
+    SearchPaperResult externalResult =
+        paperApiClient.correlatedPapers(
+            paperID, limit, filterCategories, filterStartDate, filterEndDate);
+
+    return processSearchResults(externalResult, "similarity", limit, 0, false);
   }
 
   private SearchPaperResult processSearchResults(

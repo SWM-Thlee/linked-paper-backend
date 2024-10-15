@@ -78,7 +78,11 @@ public class PaperApiClient {
     return mapToSearchPaperResult(apiResponses);
   }
 
-  public SearchPaperResult corelatedPapers(
+  @Cacheable(
+      value = "correlatedResults",
+      key =
+          "#paperID + (T(org.springframework.util.CollectionUtils).isEmpty(#filterCategories) ? '' : T(String).join(',', #filterCategories)) + (#filterStartDate == null ? '' : #filterStartDate) + (#filterEndDate == null ? '' : #filterEndDate)")
+  public SearchPaperResult correlatedPapers(
       String paperID,
       int limit,
       List<String> filterCategories,
