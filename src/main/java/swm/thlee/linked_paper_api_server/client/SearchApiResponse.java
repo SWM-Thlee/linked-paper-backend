@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
-public class ApiResponse {
+public class SearchApiResponse {
   // Getters and setters
   private String id;
   private float weight;
