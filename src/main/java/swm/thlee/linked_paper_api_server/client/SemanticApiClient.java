@@ -44,26 +44,33 @@ public class SemanticApiClient {
   }
 
   public SearchPaperResult getExtrainfo(SearchPaperResult searchPaperResult) {
-    SemanticApiResponse[] semanticApiResponse =
-        webClient
-            .post()
-            .uri(
-                uriBuilder ->
-                    uriBuilder
-                        .path("/graph/v1/paper/batch")
-                        .queryParam("fields", "citationCount,referenceCount,externalIds")
-                        .build())
-            .body(
-                BodyInserters.fromValue(
-                    Map.of(
-                        "ids",
-                        searchPaperResult.getData().stream()
-                            .map(Paper::getSemanticArxivId)
-                            .collect(Collectors.toList()))))
-            .retrieve()
-            .bodyToMono(SemanticApiResponse[].class)
-            .block();
-    return aggregateResult(searchPaperResult, semanticApiResponse);
+    try {
+      SemanticApiResponse[] semanticApiResponse =
+          webClient
+              .post()
+              .uri(
+                  uriBuilder ->
+                      uriBuilder
+                          .path("/graph/v1/paper/batch")
+                          .queryParam("fields", "citationCount,referenceCount,externalIds")
+                          .build())
+              .body(
+                  BodyInserters.fromValue(
+                      Map.of(
+                          "ids",
+                          searchPaperResult.getData().stream()
+                              .map(Paper::getSemanticArxivId)
+                              .collect(Collectors.toList()))))
+              .retrieve()
+              .bodyToMono(SemanticApiResponse[].class)
+              .block();
+
+      return aggregateResult(searchPaperResult, semanticApiResponse);
+
+    } catch (Exception e) {
+      System.err.println("Error occurred from 3rd party api: " + e.getMessage());
+      return searchPaperResult; // 예외 발생 시 기존 searchPaperResult 반환
+    }
   }
 
   public SearchPaperResult aggregateResult(
