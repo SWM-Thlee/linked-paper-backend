@@ -4,6 +4,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.handler.timeout.ReadTimeoutHandler;
 import java.time.Duration;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
@@ -52,7 +53,8 @@ public class SemanticApiClient {
                   uriBuilder ->
                       uriBuilder
                           .path("/graph/v1/paper/batch")
-                          .queryParam("fields", "citationCount,referenceCount,externalIds")
+                          .queryParam(
+                              "fields", "citationCount,referenceCount,externalIds,journal,venue")
                           .build())
               .body(
                   BodyInserters.fromValue(
@@ -64,7 +66,6 @@ public class SemanticApiClient {
               .retrieve()
               .bodyToMono(SemanticApiResponse[].class)
               .block();
-
       return aggregateResult(searchPaperResult, semanticApiResponse);
 
     } catch (Exception e) {
@@ -80,11 +81,21 @@ public class SemanticApiClient {
         .forEach(
             paper -> {
               for (SemanticApiResponse semanticApiResponse : semanticApiResponses) {
-                if (paper
-                    .getArxiv_id()
-                    .equals(semanticApiResponse.getExternalIds().getOrDefault("ArXiv", "none"))) {
+                if (semanticApiResponse != null
+                    && paper
+                        .getArxiv_id()
+                        .equals(
+                            semanticApiResponse.getExternalIds().getOrDefault("ArXiv", "none"))) {
                   paper.setCitiation_count(semanticApiResponse.getCitationCount());
                   paper.setReference_count(semanticApiResponse.getReferenceCount());
+                  semanticApiResponse.getVenue().ifPresent(paper::setJournal);
+                  semanticApiResponse
+                      .getJournal()
+                      .flatMap(
+                          journal ->
+                              Optional.ofNullable(
+                                  journal.get("name"))) // Optional 안의 Map에서 name을 추출
+                      .ifPresent(paper::setJournal);
                 }
               }
             });
