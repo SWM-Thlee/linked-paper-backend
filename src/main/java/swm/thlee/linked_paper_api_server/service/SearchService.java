@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import swm.thlee.linked_paper_api_server.client.PaperApiClient;
+import swm.thlee.linked_paper_api_server.client.SemanticApiClient;
 import swm.thlee.linked_paper_api_server.dto.SearchPaperResult;
 import swm.thlee.linked_paper_api_server.model.Paper;
 
@@ -13,6 +14,7 @@ import swm.thlee.linked_paper_api_server.model.Paper;
 public class SearchService {
 
   @Autowired private PaperApiClient paperApiClient;
+  @Autowired private SemanticApiClient semanticApiClient;
 
   public SearchPaperResult searchPapers(
       String query,
@@ -26,11 +28,13 @@ public class SearchService {
       String filterEndDate) {
 
     // 필터링 로직을 외부 API로 위임하여 처리
-    SearchPaperResult externalResult =
+    SearchPaperResult externalSearchResult =
         paperApiClient.searchPapers(query, filterCategories, filterStartDate, filterEndDate);
 
+    SearchPaperResult aggregatedResult = semanticApiClient.getExtrainfo(externalSearchResult);
+
     // 유사성 제한, 정렬 및 인덱싱은 캐싱된 데이터에서 처리
-    return processSearchResults(externalResult, sorting, size, index, similarityLimit);
+    return processSearchResults(aggregatedResult, sorting, size, index, similarityLimit);
   }
 
   public SearchPaperResult findCorrelatedPapers(
@@ -42,11 +46,13 @@ public class SearchService {
       String filterStartDate,
       String filterEndDate) {
 
-    SearchPaperResult externalResult =
+    SearchPaperResult externalSimilarResult =
         paperApiClient.correlatedPapers(
             paperID, limit, filterCategories, filterStartDate, filterEndDate);
 
-    return processSearchResults(externalResult, "similarity", limit, 0, false);
+    SearchPaperResult aggregatedResult = semanticApiClient.getExtrainfo(externalSimilarResult);
+
+    return processSearchResults(aggregatedResult, "similarity", limit, 0, false);
   }
 
   private SearchPaperResult processSearchResults(
@@ -58,11 +64,11 @@ public class SearchService {
     List<Paper> papers = externalResult.getData();
 
     // 유사성 제한 적용
-    //        if (similarityLimit) {
-    //            papers = papers.stream()
-    //                    .filter(paper -> paper.getWeight() > 0.1) // 유사성 스코어 0.3 이상만 포함
-    //                    .collect(Collectors.toList());
-    //        }
+    // if (similarityLimit) {
+    // papers = papers.stream()
+    // .filter(paper -> paper.getWeight() > 0.1) // 유사성 스코어 0.3 이상만 포함
+    // .collect(Collectors.toList());
+    // }
 
     // 정렬 적용
     if ("recency".equals(sorting)) {

@@ -55,7 +55,7 @@ public class PaperApiClient {
       String query, List<String> filterCategories, String filterStartDate, String filterEndDate) {
 
     // WebClient를 사용하여 외부 API 호출
-    ApiResponse[] apiResponses =
+    SearchApiResponse[] searchApiRespons =
         webClient
             .get()
             .uri(
@@ -71,11 +71,11 @@ public class PaperApiClient {
                         .queryParamIfPresent("filter_end_date", Optional.ofNullable(filterEndDate))
                         .build())
             .retrieve()
-            .bodyToMono(ApiResponse[].class)
+            .bodyToMono(SearchApiResponse[].class)
             .block(); // 비동기식 호출을 동기식으로 변환
 
     // API 응답을 SearchPaperResult로 매핑
-    return mapToSearchPaperResult(apiResponses);
+    return mapToSearchPaperResult(searchApiRespons);
   }
 
   @Cacheable(
@@ -88,7 +88,7 @@ public class PaperApiClient {
       List<String> filterCategories,
       String filterStartDate,
       String filterEndDate) {
-    ApiResponse[] apiResponses =
+    SearchApiResponse[] searchApiRespons =
         webClient
             .get()
             .uri(
@@ -105,29 +105,29 @@ public class PaperApiClient {
                         .queryParamIfPresent("filter_end_date", Optional.ofNullable(filterEndDate))
                         .build())
             .retrieve()
-            .bodyToMono(ApiResponse[].class)
+            .bodyToMono(SearchApiResponse[].class)
             .block(); // 비동기식 호출을 동기식으로 변환
 
     // API 응답을 SearchPaperResult로 매핑
-    return mapToSearchPaperResult(apiResponses);
+    return mapToSearchPaperResult(searchApiRespons);
   }
 
   // ApiResponse 배열을 SearchPaperResult로 변환하는 메소드
-  private SearchPaperResult mapToSearchPaperResult(ApiResponse[] apiResponses) {
+  private SearchPaperResult mapToSearchPaperResult(SearchApiResponse[] searchApiRespons) {
     SearchPaperResult searchResult = new SearchPaperResult();
-    searchResult.setCount(apiResponses.length);
+    searchResult.setCount(searchApiRespons.length);
     searchResult.setStatus("success");
 
     List<Paper> papers =
-        List.of(apiResponses).stream().map(this::mapToPaper).collect(Collectors.toList());
+        List.of(searchApiRespons).stream().map(this::mapToPaper).collect(Collectors.toList());
 
     searchResult.setData(papers);
     return searchResult;
   }
 
   // ApiResponse를 Paper 객체로 변환하는 메소드
-  private Paper mapToPaper(ApiResponse apiResponse) {
-    ApiResponse.Meta meta = apiResponse.getMeta();
+  private Paper mapToPaper(SearchApiResponse searchApiResponse) {
+    SearchApiResponse.Meta meta = searchApiResponse.getMeta();
 
     String arxiv_regex = "oai:arXiv.org:(.+)"; // 'oai:ArXiv.org:' 뒤에 오는 값을 추출하는 정규식
     String arxiv_oai_id = meta.getIdentifier();
@@ -174,7 +174,8 @@ public class PaperApiClient {
             .replace(" and ", ", "); // 'and'를 ','로 변경
 
     Paper paper = new Paper();
-    paper.setId(apiResponse.getId());
+    paper.setArxiv_id(arxiv_id);
+    paper.setId(searchApiResponse.getId());
     paper.setTitle(sanitizedTitle); // 정리된 title 사용
     paper.setAbstraction(sanitizedAbstraction); // 정리된 abstract 사용
     paper.setJournal("arXiv.org"); // 하드코딩된 값 사용, 필요시 수정
@@ -185,7 +186,7 @@ public class PaperApiClient {
     paper.setOrigin_link("https://arxiv.org/abs/" + arxiv_id); // 원본 링크 설정
     paper.setPdf_link("https://arxiv.org/pdf/" + arxiv_id + ".pdf"); // PDF 링크 설정
     paper.setDate(meta.getDatestamp());
-    paper.setWeight(apiResponse.getWeight());
+    paper.setWeight(searchApiResponse.getWeight());
 
     return paper;
   }

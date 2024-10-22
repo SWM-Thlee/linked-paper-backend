@@ -6,6 +6,7 @@ import lombok.Data;
 @Data
 public class Paper {
   private String id;
+  private String arxiv_id;
   private String title;
   private String abstraction;
   private String journal;
@@ -17,4 +18,8 @@ public class Paper {
   private String pdf_link;
   private String date;
   private float weight;
+
+  public String getSemanticArxivId() {
+    return "ARXIV:" + this.arxiv_id;
+  }
 }
