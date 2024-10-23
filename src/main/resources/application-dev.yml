@@ -22,3 +22,7 @@ search-service-api:
 logging:
   level:
     org.springframework.web: DEBUG  # WebClient 요청 로깅
+
+sentry:
+  dsn: ""  # Sentry DSN을 비워둠
+  enabled: false  # Sentry 비활성화

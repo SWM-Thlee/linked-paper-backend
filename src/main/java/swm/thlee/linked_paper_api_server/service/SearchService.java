@@ -6,7 +6,6 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import swm.thlee.linked_paper_api_server.client.PaperApiClient;
-import swm.thlee.linked_paper_api_server.client.SemanticApiClient;
 import swm.thlee.linked_paper_api_server.dto.SearchPaperResult;
 import swm.thlee.linked_paper_api_server.model.Paper;
 
@@ -14,7 +13,6 @@ import swm.thlee.linked_paper_api_server.model.Paper;
 public class SearchService {
 
   @Autowired private PaperApiClient paperApiClient;
-  @Autowired private SemanticApiClient semanticApiClient;
 
   public SearchPaperResult searchPapers(
       String query,
@@ -31,10 +29,8 @@ public class SearchService {
     SearchPaperResult externalSearchResult =
         paperApiClient.searchPapers(query, filterCategories, filterStartDate, filterEndDate);
 
-    SearchPaperResult aggregatedResult = semanticApiClient.getExtrainfo(externalSearchResult);
-
     // 유사성 제한, 정렬 및 인덱싱은 캐싱된 데이터에서 처리
-    return processSearchResults(aggregatedResult, sorting, size, index, similarityLimit);
+    return processSearchResults(externalSearchResult, sorting, size, index, similarityLimit);
   }
 
   public SearchPaperResult findCorrelatedPapers(
@@ -50,9 +46,7 @@ public class SearchService {
         paperApiClient.correlatedPapers(
             paperID, limit, filterCategories, filterStartDate, filterEndDate);
 
-    SearchPaperResult aggregatedResult = semanticApiClient.getExtrainfo(externalSimilarResult);
-
-    return processSearchResults(aggregatedResult, "similarity", limit, 0, false);
+    return processSearchResults(externalSimilarResult, "similarity", limit, 0, false);
   }
 
   private SearchPaperResult processSearchResults(
