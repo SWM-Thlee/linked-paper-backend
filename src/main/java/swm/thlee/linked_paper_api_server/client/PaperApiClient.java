@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
@@ -22,6 +23,7 @@ import swm.thlee.linked_paper_api_server.model.Paper;
 public class PaperApiClient {
 
   private final WebClient webClient;
+  @Autowired private SemanticApiClient semanticApiClient;
 
   // 생성자에서 외부 API URL을 받아오고 WebClient를 설정
   public PaperApiClient(
@@ -122,7 +124,11 @@ public class PaperApiClient {
         List.of(searchApiRespons).stream().map(this::mapToPaper).collect(Collectors.toList());
 
     searchResult.setData(papers);
-    return searchResult;
+    return aggregateExtraInfo(searchResult);
+  }
+
+  private SearchPaperResult aggregateExtraInfo(SearchPaperResult searchResult) {
+    return semanticApiClient.getExtrainfo(searchResult);
   }
 
   // ApiResponse를 Paper 객체로 변환하는 메소드
