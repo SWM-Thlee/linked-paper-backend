@@ -121,7 +121,10 @@ public class PaperApiClient {
     searchResult.setStatus("success");
 
     List<Paper> papers =
-        List.of(searchApiRespons).stream().map(this::mapToPaper).collect(Collectors.toList());
+        List.of(searchApiRespons).stream()
+            .map(this::mapToPaper)
+            .distinct() // 중복 제거
+            .collect(Collectors.toList());
 
     searchResult.setData(papers);
     return aggregateExtraInfo(searchResult);
