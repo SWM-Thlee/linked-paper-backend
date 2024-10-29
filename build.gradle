@@ -28,7 +28,7 @@ dependencies {
 	implementation 'org.projectlombok:lombok:1.18.30'
 	annotationProcessor 'org.projectlombok:lombok:1.18.30'
 	developmentOnly 'me.paulschwarz:spring-dotenv:2.5.4'
-	implementation 'io.sentry:sentry-spring-boot-starter-jakarta:7.15.0'
+	runtimeOnly 'io.netty:netty-resolver-dns-native-macos:4.1.104.Final:osx-aarch_64'
 }
 
 tasks.named('test') {

@@ -24,5 +24,9 @@ logging:
     org.springframework.web: DEBUG  # WebClient 요청 로깅
 
 sentry:
-  dsn: ""  # Sentry DSN을 비워둠
-  enabled: false  # Sentry 비활성화
+  environment: "dev"
+  dsn: ${SPRING_SENTRY_DSN}
+  traces-sample-rate: 1.0
+  exception-resolver-order: -2147483647
+  max-request-body-size: always
+  send-default-pii: true

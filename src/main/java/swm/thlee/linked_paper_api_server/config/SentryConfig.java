@@ -13,6 +13,12 @@ public class SentryConfig {
   @Value("${sentry.dsn}")
   private String dsn;
 
+  @Value("${sentry.traces-sample-rate}")
+  private double traces_sample_rate;
+
+  @Value("${sentry.environment}")
+  private String env;
+
   @Autowired private CustomTracesSamplerCallback customTracesSamplerCallback;
 
   // Bean 초기화가 완료된 후 Sentry를 초기화
@@ -20,11 +26,11 @@ public class SentryConfig {
   public void init() {
     Sentry.init(
         options -> {
-          options.setDsn(dsn); // DSN 값 설정
-          options.setEnvironment("production");
-          options.setRelease("1.0.0");
-          options.setTracesSampleRate(1.0); // Ensure this is set for transaction tracing
+          options.setDsn(dsn);
+          options.setTracesSampleRate(traces_sample_rate);
           options.setTracesSampler(customTracesSamplerCallback);
+          options.setEnvironment(env);
+          options.setDebug(true);
         });
   }
 }

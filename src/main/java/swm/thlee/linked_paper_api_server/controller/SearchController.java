@@ -12,8 +12,7 @@ public class SearchController {
 
   @Autowired private SearchService searchService;
 
-  @RequestMapping("/search")
-  @GetMapping
+  @GetMapping("/search")
   public ResponseEntity<SearchPaperResult> findSearchResult(
       @RequestParam("query") String query,
       @RequestParam(value = "sorting", defaultValue = "similarity") String sorting,
@@ -40,8 +39,7 @@ public class SearchController {
     return ResponseEntity.ok(result);
   }
 
-  @RequestMapping("/correlations/{paperID}")
-  @GetMapping
+  @GetMapping("/correlations/{paperID}")
   public ResponseEntity<SearchPaperResult> findCorrelationResult(
       @PathVariable("paperID") String paperID,
       @RequestParam(value = "limit", defaultValue = "10") int limit,
