@@ -30,7 +30,6 @@ public class SentryConfig {
           options.setTracesSampleRate(traces_sample_rate);
           options.setTracesSampler(customTracesSamplerCallback);
           options.setEnvironment(env);
-          options.setDebug(true);
         });
   }
 }
